@@ -95,7 +95,7 @@ public class UserController {
             else {
             Customer customer = CustomerService.getCustomerByChatId(chatId);
             if (customer == null) {
-                sendMessage.setText("SAlom");
+                sendMessage.setText("Salom");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
             } else {
