@@ -16,5 +16,14 @@
     "phoneNumber": "998944803888",
     "confirmPassword": "7546",
     "active": false
+  },
+  {
+    "id": 0,
+    "chatId": "781142775",
+    "firstName": "Nodir",
+    "lastName": null,
+    "phoneNumber": "+998943751512",
+    "confirmPassword": "6877",
+    "active": false
   }
 ]
