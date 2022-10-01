@@ -1,6 +1,7 @@
 package TelegramQuiz.controller;
 
 import TelegramQuiz.container.ComponentContainer;
+import TelegramQuiz.db.Database;
 import TelegramQuiz.entity.Customer;
 import TelegramQuiz.files.WorkWithFiles;
 import TelegramQuiz.qrcode.GenerateQRCode;
@@ -85,7 +86,13 @@ public class UserController {
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
             }
-        }else {
+        }
+        else if (text.equals(KeyboardButtonConstants.CHOOSE_SUBJECT)){
+            sendMessage.setText("Please Choice subject");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getChoiceSubjectMenu());
+            ComponentContainer.MY_BOT.sendMsg(sendMessage);
+        }
+            else {
             Customer customer = CustomerService.getCustomerByChatId(chatId);
             if (customer == null) {
                 sendMessage.setText("SAlom");
