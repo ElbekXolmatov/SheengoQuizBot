@@ -16,4 +16,5 @@ public interface Database {
     List<Message> messageList = new ArrayList<>();
     List<Subject> subjectsList = new ArrayList<>();
     List<History> historyList = new ArrayList<>();
+
 }

@@ -25,5 +25,32 @@
     "phoneNumber": "+998943751512",
     "confirmPassword": "6877",
     "active": false
+  },
+  {
+    "id": 0,
+    "chatId": "1223201050",
+    "firstName": "𝔼𝕝𝕓𝕖𝕜_𝕏𝕠𝕝𝕞𝕒𝕥𝕠𝕧™",
+    "lastName": "SheengoE.O.E",
+    "phoneNumber": "998976437730",
+    "confirmPassword": "9661",
+    "active": false
+  },
+  {
+    "id": 0,
+    "chatId": "561014870",
+    "firstName": "Nodir",
+    "lastName": null,
+    "phoneNumber": "+998944821512",
+    "confirmPassword": "6902",
+    "active": false
+  },
+  {
+    "id": 0,
+    "chatId": "1053744830",
+    "firstName": "Yusupov",
+    "lastName": "Fayzullo",
+    "phoneNumber": "998994353074",
+    "confirmPassword": "5773",
+    "active": false
   }
 ]
