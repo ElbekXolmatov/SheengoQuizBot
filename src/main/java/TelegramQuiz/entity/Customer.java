@@ -15,6 +15,7 @@ public class Customer {
     private String phoneNumber;
     private String confirmPassword;
     private boolean active = false;
+    private boolean isAdmin = false;
 
     public Customer(String chatId, String firstName, String lastName,
                     String phoneNumber, String confirmPassword) {

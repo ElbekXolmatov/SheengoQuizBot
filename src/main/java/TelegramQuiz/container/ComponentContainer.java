@@ -1,7 +1,6 @@
 package TelegramQuiz.container;
 
 import TelegramQuiz.Bot.QuizBot;
-import TelegramQuiz.entity.MessageData;
 import TelegramQuiz.enums.QuestionStatus;
 
 import java.util.ArrayList;

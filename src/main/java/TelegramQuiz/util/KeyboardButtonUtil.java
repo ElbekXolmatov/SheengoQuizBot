@@ -1,8 +1,12 @@
 package TelegramQuiz.util;
 
+import TelegramQuiz.container.ComponentContainer;
 import TelegramQuiz.db.Database;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import TelegramQuiz.db.Database;
+import TelegramQuiz.entity.Customer;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -217,4 +221,20 @@ public class KeyboardButtonUtil {
         return markup;
 
     }
+
+    public static ReplyKeyboard getAdminCRUD() {
+
+        List<KeyboardRow> rowList = getRowList(
+                getRow(
+                        getButton(KeyboardButtonConstants.ADD_ADMIN),
+                        getButton(KeyboardButtonConstants.SHOW_ADMIN_LIST)
+                ),
+                getRow(
+                        getButton(KeyboardButtonConstants.DELETE_ADMIN),
+                        getButton(KeyboardButtonConstants.BACK_TO_MENU)
+                ));
+
+        return getMarkup(rowList);
+    }
+
 }

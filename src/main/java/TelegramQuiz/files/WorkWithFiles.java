@@ -1,5 +1,6 @@
 package TelegramQuiz.files;
 
+import TelegramQuiz.container.ComponentContainer;
 import TelegramQuiz.db.Database;
 import TelegramQuiz.entity.Customer;
 import TelegramQuiz.entity.History;
@@ -17,6 +18,7 @@ import com.itextpdf.layout.properties.HorizontalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.glassfish.grizzly.compression.lzma.impl.Base;
 
 import java.io.*;
 import java.util.List;
@@ -192,4 +194,49 @@ public interface WorkWithFiles {
         return file;
     }
 
+    static File generateCustomerHistoryPdfFile(String chatId, List<History> historyList, List<Customer> customerList) {
+        File file = new File(BASE_FOLDER, "customerTestHistory.pdf");
+        try (PdfWriter pdfWriter = new PdfWriter(file);
+             PdfDocument pdfDocument = new PdfDocument(pdfWriter);
+             Document document = new Document(pdfDocument)){
+
+            pdfDocument.addNewPage();
+            Paragraph paragraph = new Paragraph();
+            document.add(paragraph);
+
+            float[] columns = {100f,100f,100f,100f,100f,100f};
+            Table table = new Table(columns);
+            table.setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+            String[] header = {"Id", "Chat id","Subject", "Count of questions", "Correct Answers", "Time"};
+
+            for (String s : header) {
+                table.addCell(s);
+            }
+            int i = 0;
+            for (History history : historyList) {
+                if (history.getUserChatId().equals(chatId)){
+                table.addCell(String.valueOf(i + 1));
+                table.addCell(history.getUserChatId());
+                table.addCell(history.getSubject());
+                table.addCell(String.valueOf(history.getCountOfQuestions()));
+                table.addCell(String.valueOf(history.getCorrectAnswers()));
+                table.addCell(history.getTime());
+                i++;
+                }
+            }
+            document.add(table);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
+    static void readAdminList() {
+        for (int i = 0; i < Database.customerList.size(); i++) {
+            if (Database.customerList.get(i).isAdmin()){
+                ComponentContainer.ADMIN_CHAT_IDS.add(Database.customerList.get(i).getChatId());
+            }
+        }
+    }
 }

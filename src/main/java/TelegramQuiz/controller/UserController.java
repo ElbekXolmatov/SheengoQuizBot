@@ -5,6 +5,7 @@ import TelegramQuiz.db.Database;
 import TelegramQuiz.entity.Customer;
 import TelegramQuiz.entity.History;
 import TelegramQuiz.entity.Question;
+import TelegramQuiz.entity.History;
 import TelegramQuiz.files.WorkWithFiles;
 import TelegramQuiz.qrcode.GenerateQRCode;
 import TelegramQuiz.service.CustomerService;
@@ -14,6 +15,7 @@ import TelegramQuiz.util.KeyboardButtonConstants;
 import TelegramQuiz.util.KeyboardButtonUtil;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.WriterException;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -250,6 +252,7 @@ public class UserController {
 
     public static void handleCallback(User user, Message message, String data) {
         String chatId = String.valueOf(message.getChatId());
+
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         //<//Teginilmasin
