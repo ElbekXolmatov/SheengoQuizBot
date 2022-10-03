@@ -9,12 +9,17 @@ import TelegramQuiz.files.WorkWithFiles;
 import TelegramQuiz.qrcode.GenerateQRCode;
 import TelegramQuiz.service.CustomerService;
 import TelegramQuiz.service.SubjectService;
+import TelegramQuiz.entity.Question;
+import TelegramQuiz.files.WorkWithFiles;
 import TelegramQuiz.util.InlineButtonConstants;
 import TelegramQuiz.util.KeyboardButtonConstants;
 import TelegramQuiz.util.KeyboardButtonUtil;
+import lombok.AllArgsConstructor;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.objects.Contact;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 
@@ -115,9 +120,20 @@ public class AdminController {
             WorkWithFiles.writeSubjectsList();
             sendMessage.setReplyMarkup(KeyboardButtonUtil.getBackInlineButton());
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
+        } else if (text.equals(KeyboardButtonConstants.GET_USERS_LIST_EXCEL)) {
+            SendDocument sendDocument = new SendDocument();
+            sendDocument.setChatId(chatId);
+            sendDocument.setDocument(new InputFile(WorkWithFiles.generateCustomerExcelFile(Database.customerList)));
+            ComponentContainer.MY_BOT.sendMsg(sendDocument);
+        } else if (text.equals(KeyboardButtonConstants.GET_ALL_HISTORY_PDF)) {
+            SendDocument sendDocument = new SendDocument();
+            sendDocument.setChatId(chatId);
+            sendDocument.setDocument(new InputFile(WorkWithFiles.generateAllHistoryPdfFile(Database.historyList)));
+            ComponentContainer.MY_BOT.sendMsg(sendDocument);
             DeleteMessage deleteMessag2=new DeleteMessage(chatId,message.getMessageId());
             ComponentContainer.MY_BOT.sendMsg(deleteMessag2);
         }
+
     }
 
 

@@ -15,4 +15,8 @@ public class KeyboardButtonConstants {
     public static final String UPDATE_SUBJECT="Update";
     public static final String DELETE_SUBJECT="delete";
     public static final String BACK = "BACK";
+    //<Tegiinilmasin
+    public static final String BACK_TO_MAIN_MENU = "Back to main menu";
+    public static final String BACK_TO_SUBJECT_MENU = "Back to subjects menu";
+    //Teginilmasin>
 }

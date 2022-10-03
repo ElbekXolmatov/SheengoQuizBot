@@ -2,10 +2,12 @@ package TelegramQuiz.util;
 
 import TelegramQuiz.db.Database;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import TelegramQuiz.db.Database;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButtonPollType;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ public class KeyboardButtonUtil {
     }
 
     private static KeyboardButton getButton(String demo) {
+
         return new KeyboardButton(demo);
     }
 
@@ -65,12 +68,42 @@ public class KeyboardButtonUtil {
     }
 
     public static ReplyKeyboard getContactMenu() {
-        KeyboardButton button = getButton("Raqam ulashish");
+        KeyboardButton button = getButton("Raqamingizni jo'nating.");
         button.setRequestContact(true);
 
         return getMarkup(getRowList(getRow(button)));
     }
+//<Teginilmasin
+    public static ReplyKeyboard getChoiceSubjectMenu() {
 
+        List<KeyboardRow> rows=new ArrayList<>();
+        for (int i = 0; i < Database.subjectsList.size(); i+=2) {
+            if (Database.subjectsList.size()==(i+1)){
+                KeyboardButton button = getButton(Database.subjectsList.get(i).getTitle());
+                KeyboardButton backMenu = getButton(KeyboardButtonConstants.BACK_TO_MAIN_MENU);
+                KeyboardRow row = getRow(button,backMenu);
+                rows.add(row);
+            }
+            else {
+            KeyboardButton button = getButton(Database.subjectsList.get(i).getTitle());
+            KeyboardButton button1 = getButton(Database.subjectsList.get(i+1).getTitle());
+            KeyboardRow row = getRow(button,button1);
+            rows.add(row);
+            }
+        }
+        if (Database.subjectsList.size()%2==0){
+            KeyboardButton backMenu = getButton(KeyboardButtonConstants.BACK_TO_MAIN_MENU);
+            KeyboardRow row = getRow(backMenu);
+            rows.add(row);
+        }
+        return getMarkup(rows);
+    }
+    public static ReplyKeyboard backToSubjectsMenu() {
+
+      return getMarkup(getRowList(getRow(getButton(KeyboardButtonConstants.BACK_TO_SUBJECT_MENU),
+               getButton(KeyboardButtonConstants.BACK_TO_MAIN_MENU))));
+    }
+    //Teginilmasin>
     public static InlineKeyboardMarkup getSubjectMenu() {
         InlineKeyboardButton button1=new InlineKeyboardButton();
         button1.setText("CREATE SUBJECT");

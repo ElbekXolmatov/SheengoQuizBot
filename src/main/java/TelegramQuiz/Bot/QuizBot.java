@@ -6,6 +6,7 @@ import TelegramQuiz.controller.AdminController;
 import TelegramQuiz.controller.UserController;
 import TelegramQuiz.db.Database;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -15,6 +16,8 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import javax.swing.text.Document;
 
 public class QuizBot extends TelegramLongPollingBot {
     @Override
@@ -70,9 +73,18 @@ public class QuizBot extends TelegramLongPollingBot {
                 if(!ComponentContainer.ADMIN_CHAT_IDS.contains(message.getChatId().toString())){
                     Database.messageList.add(message);
                 }
+            } else if (obj instanceof SendDocument) {
+                execute((SendDocument) obj);
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
     }
+//    public void sendMsg(SendDocument sendDocument) {
+//        try {
+//            execute(sendDocument);
+//        } catch (TelegramApiException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }
