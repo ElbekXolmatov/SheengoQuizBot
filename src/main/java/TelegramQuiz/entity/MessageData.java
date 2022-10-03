@@ -9,4 +9,5 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 public class MessageData {
     private Message message;
     private String customerChatId;
+    private Integer messageId;
 }

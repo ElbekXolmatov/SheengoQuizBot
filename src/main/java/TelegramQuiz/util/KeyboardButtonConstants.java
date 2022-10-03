@@ -10,6 +10,10 @@ public class KeyboardButtonConstants {
     public static final String CHOOSE_SUBJECT = "CHOOSE SUBJECT";
     public static final String GET_HISTORY_PDF = "GET HISTORY PDF";
     public static final String CONTACT_WITH_ADMIN = "CONTACT WITH ADMIN";
+    public static final String BACK_TO_MENU = "BACK TO MAIN MENU";
+    public static final String ADD_ADMIN = "ADD ADMIN";
+    public static final String SHOW_ADMIN_LIST = "SHOW ADMIN LIST";
+    public static final String DELETE_ADMIN = "DELETE ADMIN";
     public static final String CREATE_SUBJECT="subject";
     public static final String READ_SUBJECT="read";
     public static final String UPDATE_SUBJECT="Update";

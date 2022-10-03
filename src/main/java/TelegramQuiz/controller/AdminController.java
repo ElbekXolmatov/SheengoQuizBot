@@ -25,7 +25,7 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-
+import java.util.List;
 
 
 public class AdminController {
@@ -36,6 +36,8 @@ public class AdminController {
 
 
 
+    static boolean isDeleted;
+    static boolean isAdded;
     public static void handleMessage(User user, Message message) {
 
      String s= String.valueOf(message.getChatId());
@@ -124,20 +126,106 @@ public class AdminController {
             sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
         } else if (text.equals(KeyboardButtonConstants.GET_USERS_LIST_EXCEL)) {
+            if(Database.customerList.size() == 0){
+                sendMessage.setText("No registered customers");
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+            }
             SendDocument sendDocument = new SendDocument();
             sendDocument.setChatId(chatId);
             sendDocument.setDocument(new InputFile(WorkWithFiles.generateCustomerExcelFile(Database.customerList)));
             ComponentContainer.MY_BOT.sendMsg(sendDocument);
         } else if (text.equals(KeyboardButtonConstants.GET_ALL_HISTORY_PDF)) {
+            if(Database.historyList.size() == 0){
+                sendMessage.setText("History is empty");
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+                return;
+            }
             SendDocument sendDocument = new SendDocument();
             sendDocument.setChatId(chatId);
             sendDocument.setDocument(new InputFile(WorkWithFiles.generateAllHistoryPdfFile(Database.historyList)));
             ComponentContainer.MY_BOT.sendMsg(sendDocument);
             DeleteMessage deleteMessag2=new DeleteMessage(chatId,message.getMessageId());
             ComponentContainer.MY_BOT.sendMsg(deleteMessag2);
+        } else if (text.equals(KeyboardButtonConstants.WORK_WITH_ADMIN)) {
+            sendMessage.setText("Chose option below: ");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminCRUD());
+            ComponentContainer.MY_BOT.sendMsg(sendMessage);
+        }else if (text.equals(KeyboardButtonConstants.BACK_TO_MENU)) {
+            sendMessage.setText("Main menu: ");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
+            ComponentContainer.MY_BOT.sendMsg(sendMessage);
+        }else if(text.equals(KeyboardButtonConstants.SHOW_ADMIN_LIST)){
+            for (String adminChatId : ComponentContainer.ADMIN_CHAT_IDS) {
+                for (Customer customer : Database.customerList) {
+                    if(customer.getChatId().equals(adminChatId)){
+                        sendMessage.setText("First name: " + customer.getFirstName()+"\n"
+                                + "Phone number: " + customer.getPhoneNumber());
+                        ComponentContainer.MY_BOT.sendMsg(sendMessage);
+                    }
+                }
+            }
+        }else if(text.equals(KeyboardButtonConstants.DELETE_ADMIN)){
+            isDeleted=true;
+        sendMessage.setText("Enter number "+ "\nExample: +998907777777");
+        ComponentContainer.MY_BOT.sendMsg(sendMessage);
+        }  else if (text.equals(KeyboardButtonConstants.ADD_ADMIN)) {
+            isAdded = true;
+            sendMessage.setText("Enter number " + "\nExample: +998907777777");
+            ComponentContainer.MY_BOT.sendMsg(sendMessage);
+        }else if (isDeleted) {
+            String numSub = text.substring(1);
+            Customer customer1 =Database.customerList.stream().filter(customer -> customer.getPhoneNumber().contains(numSub)).findFirst().orElse(null);
+            if(!text.matches("(\\+)?998\\d{9}")){
+                sendMessage.setText("Wrong number! ");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminCRUD());
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+            } else if(customer1==null){
+                sendMessage.setText("User not found!");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminCRUD());
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+                isDeleted=false;
+            }
+            else {
+                isDeleted=false;
+                customer1.setAdmin(false);
+                ComponentContainer.ADMIN_CHAT_IDS.remove(customer1.getChatId());
+                WorkWithFiles.writeCustomerList();
+                sendMessage.setText("Successfully deleted");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminCRUD());
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+            }
+        } else if (isAdded) {
+            Customer customer = Database.customerList.stream().filter(customer1 -> customer1.getPhoneNumber().contains(text)).findFirst().orElse(null);
+            if(!text.matches("(\\+)?998\\d{9}")){
+                sendMessage.setText("Wrong number! ");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminCRUD());
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+            } else if (ComponentContainer.ADMIN_CHAT_IDS.contains(customer.getChatId())) {
+                sendMessage.setText(customer.getPhoneNumber() + " is already on the list");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminCRUD());
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+            }else if(customer == null){
+                sendMessage.setText("User not found: ");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminCRUD());
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+                isAdded = false;
+            }
+            else {
+                isAdded = false;
+                customer.setAdmin(true);
+                ComponentContainer.ADMIN_CHAT_IDS.add(customer.getChatId());
+                sendMessage.setText("Successfully added ");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminCRUD());
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+                WorkWithFiles.writeCustomerList();
+                WorkWithFiles.readCustomerList();
+            }
+
         }else {
             if (ComponentContainer.adminAnswerMap.containsKey(chatId)){
                 MessageData messageData = ComponentContainer.adminAnswerMap.get(chatId);
+
+                Integer customerMessageId = messageData.getMessageId();
 
                 String customerChatId = messageData.getCustomerChatId();
                 Integer messageId = messageData.getMessage().getMessageId();
@@ -149,14 +237,37 @@ public class AdminController {
 
                 EditMessageText editMessageText = new EditMessageText();
                 editMessageText.setChatId(chatId);
+
                 editMessageText.setText(messageText+"\n\n xabariga javob: \n\n "+text);
                 editMessageText.setMessageId(messageId);
                 ComponentContainer.MY_BOT.sendMsg(editMessageText);
-
                 ComponentContainer.adminAnswerMap.remove(chatId);
+
+                List<Message> mustMessageList = null;
+                Message mustKey = null;
+
+                for (Message keyMessage : ComponentContainer.messagesMap.keySet()) {
+                    if(keyMessage.getMessageId().equals(customerMessageId)){
+                        mustKey = keyMessage;
+                        mustMessageList = ComponentContainer.messagesMap.get(keyMessage);
+                        break;
+                    }
+                }
+
+                for (Message message1 : mustMessageList) {
+                    String adminChatId = message1.getChatId().toString();
+                    if (!adminChatId.equals(message.getChatId().toString())) {
+                        EditMessageText editMessageText1 = new EditMessageText();
+                        editMessageText1.setChatId(adminChatId);
+                        editMessageText1.setText("Admin " + message.getFrom().getFirstName() + " answered for this question");
+                        editMessageText1.setMessageId(message1.getMessageId());
+                        ComponentContainer.MY_BOT.sendMsg(editMessageText1);
+                    }
+                }
+
+                ComponentContainer.messagesMap.remove(mustKey);
             }
         }
-
     }
 
 
@@ -170,11 +281,13 @@ public class AdminController {
 
         if(data.startsWith(InlineButtonConstants.REPLY_CALL_BACK)){
             String customerChatId = data.split("/")[1];
+            Integer messageId = Integer.parseInt(data.split("/")[2]);
 
-            ComponentContainer.adminAnswerMap.put(chatId, new MessageData(message, customerChatId));
+            ComponentContainer.adminAnswerMap.put(chatId, new MessageData(message, customerChatId, messageId));
 
             sendMessage.setText("Javobingizni kiriting: ");
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
+
         }
 //        String chatId = String.valueOf(message.getChatId());
 //        SendMessage sendMessage = new SendMessage();

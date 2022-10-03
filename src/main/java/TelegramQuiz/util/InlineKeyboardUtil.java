@@ -10,18 +10,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class InlineKeyboardUtil {
-    public static InlineKeyboardMarkup getConfirmOrCancelMenu() {
-        InlineKeyboardButton confirm = new InlineKeyboardButton(InlineButtonConstants.CONFIRM_DEMO);
-        confirm.setCallbackData(InlineButtonConstants.CONFIRM_CALL_BACK);
-
-        InlineKeyboardButton cancel = new InlineKeyboardButton(InlineButtonConstants.CANCEL_DEMO);
-        cancel.setCallbackData(InlineButtonConstants.CANCEL_CALL_BACK);
-
-        return new InlineKeyboardMarkup(List.of(
-                List.of(confirm, cancel)
-        ));
-    }
-
 
     //<Teginilmasin
     public static ReplyKeyboard getCountOfQuestions() {
@@ -55,9 +43,9 @@ public class InlineKeyboardUtil {
     //Teginilmasin>
 
 
-    public static InlineKeyboardMarkup getConnectMarkup(String chatId) {
+    public static InlineKeyboardMarkup getConnectMarkup(String chatId, Integer messageId) {
         InlineKeyboardButton button = new InlineKeyboardButton(InlineButtonConstants.REPLY_DEMO);
-        button.setCallbackData(InlineButtonConstants.REPLY_CALL_BACK + "/" + chatId);
+        button.setCallbackData(InlineButtonConstants.REPLY_CALL_BACK + "/" + chatId+"/"+messageId);
 
         return new InlineKeyboardMarkup(List.of(List.of(button)));
     }
