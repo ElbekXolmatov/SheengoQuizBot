@@ -19,6 +19,9 @@ public class InlineButtonConstants {
     public static final String ALL_CALLBACK="all/";
     //teginilmasin>
 
+    public static final String REPLY_DEMO = "Javob yozish";
+    public static final String REPLY_CALL_BACK = "_reply_";
+
     public static final String YES = "YES";
     public static final String NO = "NO";
 }

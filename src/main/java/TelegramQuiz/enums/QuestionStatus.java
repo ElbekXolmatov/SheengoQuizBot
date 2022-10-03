@@ -1,17 +1,5 @@
 package TelegramQuiz.enums;
 
 public enum QuestionStatus {
-    ENTER_FULL_NAME,
-    ENTER_TECHNOLOGY,
-    ENTER_AGE,
-    ENTER_NUMBER,
-    ENTER_PRICE,
-    ENTER_PLACE,
-    ENTER_JOB,
-    ENTER_TIME_TO_CALL,
-    ENTER_PURPOSE,
-    ENTER_ORGANIZATION_NAME,
-    ENTER_WORKING_PERIOD,
-    CONFIRM_OR_CANCEL,
-    ENTER_ADDITIONAL
+
 }

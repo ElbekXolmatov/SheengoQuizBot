@@ -4,6 +4,7 @@ import TelegramQuiz.Enum.EnumSubject;
 import TelegramQuiz.container.ComponentContainer;
 import TelegramQuiz.db.Database;
 import TelegramQuiz.entity.Customer;
+import TelegramQuiz.entity.MessageData;
 import TelegramQuiz.entity.Subject;
 import TelegramQuiz.files.WorkWithFiles;
 import TelegramQuiz.qrcode.GenerateQRCode;
@@ -71,9 +72,8 @@ public class AdminController {
         sendMessage.setChatId(chatId);
 
         if (text.equals("/start")) {
-            sendMessage.setText("Hello "  +user.getUserName());
-            sendMessage.setText("Raqamingizni ulashing");
-            sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
+            sendMessage.setText("Hello "  +user.getFirstName());
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
 
         }
@@ -119,6 +119,8 @@ public class AdminController {
             enumSubject=null;
             WorkWithFiles.writeSubjectsList();
             sendMessage.setReplyMarkup(KeyboardButtonUtil.getBackInlineButton());
+            sendMessage.setText("Hello "  +user.getFirstName());
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
         } else if (text.equals(KeyboardButtonConstants.GET_USERS_LIST_EXCEL)) {
             SendDocument sendDocument = new SendDocument();
@@ -132,6 +134,26 @@ public class AdminController {
             ComponentContainer.MY_BOT.sendMsg(sendDocument);
             DeleteMessage deleteMessag2=new DeleteMessage(chatId,message.getMessageId());
             ComponentContainer.MY_BOT.sendMsg(deleteMessag2);
+        }else {
+            if (ComponentContainer.adminAnswerMap.containsKey(chatId)){
+                MessageData messageData = ComponentContainer.adminAnswerMap.get(chatId);
+
+                String customerChatId = messageData.getCustomerChatId();
+                Integer messageId = messageData.getMessage().getMessageId();
+                String messageText = messageData.getMessage().getText();
+
+                sendMessage.setChatId(customerChatId);
+                sendMessage.setText("Admin ning javobi: "+text);
+                ComponentContainer.MY_BOT.sendMsg(sendMessage);
+
+                EditMessageText editMessageText = new EditMessageText();
+                editMessageText.setChatId(chatId);
+                editMessageText.setText(messageText+"\n\n xabariga javob: \n\n "+text);
+                editMessageText.setMessageId(messageId);
+                ComponentContainer.MY_BOT.sendMsg(editMessageText);
+
+                ComponentContainer.adminAnswerMap.remove(chatId);
+            }
         }
 
     }
@@ -140,6 +162,19 @@ public class AdminController {
 
 
     public static void handleCallback(User user, Message message, String data) {
+        String chatId = String.valueOf(message.getChatId());
+
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+
+        if(data.startsWith(InlineButtonConstants.REPLY_CALL_BACK)){
+            String customerChatId = data.split("/")[1];
+
+            ComponentContainer.adminAnswerMap.put(chatId, new MessageData(message, customerChatId));
+
+            sendMessage.setText("Javobingizni kiriting: ");
+            ComponentContainer.MY_BOT.sendMsg(sendMessage);
+        }
         String chatId = String.valueOf(message.getChatId());
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
