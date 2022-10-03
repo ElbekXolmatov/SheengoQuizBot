@@ -19,6 +19,7 @@ import lombok.AllArgsConstructor;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -175,9 +176,9 @@ public class AdminController {
             sendMessage.setText("Javobingizni kiriting: ");
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
         }
-        String chatId = String.valueOf(message.getChatId());
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
+//        String chatId = String.valueOf(message.getChatId());
+//        SendMessage sendMessage = new SendMessage();
+//        sendMessage.setChatId(chatId);
 
         Subject subject = SubjectService.handeCallback(data);
         DeleteMessage deleteMessage11 = new DeleteMessage(chatId.toString(), message.getMessageId());

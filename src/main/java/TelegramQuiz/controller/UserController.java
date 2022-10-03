@@ -14,9 +14,12 @@ import TelegramQuiz.util.KeyboardButtonConstants;
 import TelegramQuiz.util.KeyboardButtonUtil;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.WriterException;
+import javassist.bytecode.analysis.Executor;
+import lombok.SneakyThrows;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -25,11 +28,15 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -41,6 +48,10 @@ public class UserController {
     static int currentQuestion;
     static int countTrueAnswer;
     static int idHistory;
+    static LocalDateTime now ;
+
+    static LocalTime beginLocalTime;
+
 
     public static void handleMessage(User user, Message message) {
 
@@ -197,12 +208,12 @@ public class UserController {
 //                        yoz
 //                        yoz
 //                        yoz
-                    }else if (text.equals(KeyboardButtonConstants.CONTACT_WITH_ADMIN)) {
+                    } else if (text.equals(KeyboardButtonConstants.CONTACT_WITH_ADMIN)) {
 
                         ComponentContainer.customerMap.put(chatId, true);
                         sendMessage.setText("Xabaringizni kiriting: ");
                         ComponentContainer.MY_BOT.sendMsg(sendMessage);
-                    }else if (Objects.requireNonNull(Database.subjectsList.stream().
+                    } else if (Objects.requireNonNull(Database.subjectsList.stream().
                             filter(subject -> subject.getTitle().equals(text)).
                             findFirst().
                             orElse(null)).getTitle().equals(text)) {
@@ -248,6 +259,7 @@ public class UserController {
         }
     }
 
+    @SneakyThrows
     public static void handleCallback(User user, Message message, String data) {
         String chatId = String.valueOf(message.getChatId());
         SendMessage sendMessage = new SendMessage();
@@ -263,8 +275,10 @@ public class UserController {
                 Collections.shuffle(collect.get(i).getAnswer());
             }
             if (collect.size() >= countQuestion) {
+                beginLocalTime = LocalTime.now();
                 doTest = true;
                 idHistory++;
+                now=LocalDateTime.now();
             } else {
                 sendMessage.setText("Buncha savol yoq");
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
@@ -278,28 +292,33 @@ public class UserController {
             }
             idHistory++;
             doTest = true;
+            now=LocalDateTime.now();
         }
         if (doTest) {
             DeleteMessage deleteMessage = new DeleteMessage(chatId, message.getMessageId());
             ComponentContainer.MY_BOT.sendMsg(deleteMessage);
             if (currentQuestion != 0) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("Wrong answer ❌");
-                sb.append("Correct answer -> ").append(collect.get(currentQuestion - 1).getCorrectAns()).append("\n");
+
                 if (collect.get(currentQuestion - 1).getCorrectAns().
                         equals(collect.get(currentQuestion - 1).getAnswer().get(Integer.parseInt(data)))) {
                     countTrueAnswer++;
+                    sb.append("Correct answer ✔️\n");
                     sb.append("Barakalla ").append(CustomerService.getCustomerByChatId(chatId).getFirstName()).append(" To'gri Javobni topdingiz \uD83E\uDD73").append("\n");
                 } else {
-                    sb.append("Afsuski javobingiz xato").append(CustomerService.getCustomerByChatId(chatId).
+                    sb.append("Wrong answer ❌\n");
+                    sb.append("Correct answer -> ").append(collect.get(currentQuestion - 1).getCorrectAns()).append("\n");
+                    sb.append("Afsuski javobingiz xato ").append(CustomerService.getCustomerByChatId(chatId).
                             getFirstName()).append(" \uD83D\uDE14").append("\n");
                 }
                 sendMessage.setText(String.valueOf(sb));
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
             }
-            if (currentQuestion == countQuestion) {
+            if (currentQuestion == countQuestion|| Duration.between(now,LocalDateTime.now()).getSeconds()>=20 ) {
+                DeleteMessage deleteMessage1 = new DeleteMessage(chatId, message.getMessageId());
+                ComponentContainer.MY_BOT.sendMsg(deleteMessage1);
                 doTest = false;
-                sendMessage.setText("Test tugadi" + "\nNatijangiz->" + countTrueAnswer + "/" + countQuestion);
+                sendMessage.setText("Test tugadi" + "\nNatijangiz->" + countTrueAnswer + "/" + countQuestion +"\nEnd time: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
                 History history = new History(idHistory, chatId, collect.get(0).getSubject(), countQuestion, countTrueAnswer, LocalDateTime.now().toString());
                 Database.historyList.add(history);
@@ -307,18 +326,64 @@ public class UserController {
                 currentQuestion = 0;
                 countTrueAnswer = 0;
 
-            } else {
+            }
+
+            else {
+                if (currentQuestion == 0) {
+
+                    sendMessage.setText("Test boshlandi " + now.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+                    ComponentContainer.MY_BOT.sendMsg(sendMessage);
+                    SendMessage sendMessage1 = new SendMessage();
+                    sendMessage1.setChatId(chatId);
+                    sendMessage1.setText("Time: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+                    Message message1 = ComponentContainer.MY_BOT.sendMsg(sendMessage1);
+                    new MyThread(message1).start();
+                }
                 int size = collect.get(currentQuestion).getAnswer().size();
                 sendMessage.setText(collect.get(currentQuestion).getTitle());
                 sendMessage.setReplyMarkup(InlineKeyboardUtil.getAnswers(currentQuestion, size));
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
                 currentQuestion++;
             }
+
+
         }
-        //Teginilmasin>>
 
+    }
+    //Teginilmasin>>
 
+    static class MyThread extends Thread {
+
+        Message editMessage;
+
+        public MyThread(Message editMessage) {
+            this.editMessage = editMessage;
+        }
+
+        @Override
+        public void run() {
+            while (doTest) {
+                LocalDateTime now = LocalDateTime.now();
+                EditMessageText editMessageText = new EditMessageText();
+                editMessageText.setText("Time: " + now.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+                editMessageText.setChatId(String.valueOf(editMessage.getChatId()));
+                editMessageText.setMessageId(editMessage.getMessageId());
+                ComponentContainer.MY_BOT.sendMsg(editMessageText);
+                try {
+                    Thread.sleep(980);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
     }
 
 
 }
+
+
+
+
+
+
