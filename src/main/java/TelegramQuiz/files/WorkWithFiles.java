@@ -32,6 +32,7 @@ public interface WorkWithFiles {
     File SUBJECTS_FILE = new File(BASE_FOLDER, "subjects.json");
     File QUESTIONS_FILE = new File(BASE_FOLDER, "questions.json");
     File HISTORY_FILE = new File(BASE_FOLDER, "history.json");
+    File USER_HISTORY_PDF = new File (BASE_FOLDER, "history.pdf");
     /////xullas hamma fanga alohida json kere
 
     static void readCustomerList(){
@@ -158,9 +159,9 @@ public interface WorkWithFiles {
     }
 
     static File generateAllHistoryPdfFile(List<History> historyList) {
-        File file = new File (BASE_FOLDER, "history.pdf");
 
-        try (PdfWriter pdfWriter = new PdfWriter(file);
+
+        try (PdfWriter pdfWriter = new PdfWriter(USER_HISTORY_PDF);
             PdfDocument pdfDocument = new PdfDocument(pdfWriter);
             Document document = new Document(pdfDocument)){
 
@@ -172,20 +173,55 @@ public interface WorkWithFiles {
             Table table = new Table(columns);
             table.setHorizontalAlignment(HorizontalAlignment.CENTER);
 
-            String[] header = {"Id", "User chat Id", "Subject", "Count of questions", "Correct Answers", "Time"};
+            String[] header = {"№","Subject", "Count of questions", "Correct Answers", "When I passed this test"};
 
             for (String s : header) {
                 table.addCell(s);
             }
             int i = 0;
             for (History history : historyList) {
-                table.addCell(String.valueOf(i + 1));
-                table.addCell(history.getUserChatId());
+                table.addCell(String.valueOf(history.getId()));
                 table.addCell(history.getSubject());
                 table.addCell(String.valueOf(history.getCountOfQuestions()));
                 table.addCell(String.valueOf(history.getCorrectAnswers()));
                 table.addCell(history.getTime());
-                i++;
+            }
+            document.add(table);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return USER_HISTORY_PDF;
+    }
+    static File generateCustomerHistoryPdfFile(String chatId, List<History> historyList) {
+        File file = new File(BASE_FOLDER, "customerTestHistory.pdf");
+        try (PdfWriter pdfWriter = new PdfWriter(file);
+             PdfDocument pdfDocument = new PdfDocument(pdfWriter);
+             Document document = new Document(pdfDocument)){
+
+            pdfDocument.addNewPage();
+            Paragraph paragraph = new Paragraph();
+            document.add(paragraph);
+
+            float[] columns = {100f,100f,100f,100f,100f,100f};
+            Table table = new Table(columns);
+            table.setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+            String[] header = {"Id", "Chat id","Subject", "Count of questions", "Correct Answers", "Time"};
+
+            for (String s : header) {
+                table.addCell(s);
+            }
+            int i = 0;
+            for (History history : historyList) {
+                if (history.getUserChatId().equals(chatId)){
+                    table.addCell(String.valueOf(i + 1));
+                    table.addCell(String.valueOf(history.getId()));
+                    table.addCell(history.getSubject());
+                    table.addCell(String.valueOf(history.getCountOfQuestions()));
+                    table.addCell(String.valueOf(history.getCorrectAnswers()));
+                    table.addCell(history.getTime());
+                    i++;
+                }
             }
             document.add(table);
         } catch (IOException e) {

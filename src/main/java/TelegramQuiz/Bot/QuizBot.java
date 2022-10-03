@@ -60,10 +60,10 @@ public class QuizBot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendMsg(Object obj) {
+    public Message sendMsg(Object obj) {
         try {
             if (obj instanceof SendMessage) {
-                execute((SendMessage) obj);
+               return execute((SendMessage) obj);
             } else if (obj instanceof DeleteMessage) {
                 execute((DeleteMessage) obj);
             } else if (obj instanceof EditMessageText) {
@@ -79,6 +79,7 @@ public class QuizBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
+        return null;
     }
 //    public void sendMsg(SendDocument sendDocument) {
 //        try {

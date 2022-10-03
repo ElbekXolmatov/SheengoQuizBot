@@ -28,6 +28,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRem
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -139,7 +140,7 @@ public class UserController {
                             sendMessage1.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                             ComponentContainer.MY_BOT.sendMsg(sendMessage);
                             ComponentContainer.MY_BOT.sendMsg(sendMessage1);
-                            History history = new History(idHistory, chatId, collect.get(0).getSubject(), countQuestion, countTrueAnswer, LocalDateTime.now().toString());
+                            History history = new History(idHistory, chatId, collect.get(0).getSubject(), countQuestion, countTrueAnswer, LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss")));
                             Database.historyList.add(history);
                             WorkWithFiles.writeHistoryList();
                             currentQuestion = 0;
@@ -167,7 +168,7 @@ public class UserController {
                                 sendMessage.setText("Please Choice subject");
                                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getChoiceSubjectMenu());
                                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
-                                History history = new History(idHistory, chatId, collect.get(0).getSubject(), countQuestion, countTrueAnswer, LocalDateTime.now().toString());
+                                History history = new History(idHistory, chatId, collect.get(0).getSubject(), countQuestion, countTrueAnswer, LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss")));
                                 Database.historyList.add(history);
                                 WorkWithFiles.writeHistoryList();
                                 currentQuestion = 0;
@@ -190,21 +191,46 @@ public class UserController {
                             ComponentContainer.MY_BOT.sendMsg(sendMessage);
                         }
                     } else if (text.equals(KeyboardButtonConstants.GET_HISTORY_PDF)) {
-//                        yoz
-//                        yoz
-//                        yoz
-//                        yoz
-//                        yoz
-//                        yoz
-//                        yoz
-//                        yoz
-//                        yoz
+                        String customer1 = null;
+                        for (History history : Database.historyList) {
+                            if (history.getUserChatId().equals(chatId)){
+                                customer1=history.getUserChatId();
+                            }
+                        }
+                        if(customer1 == null){
+                            sendMessage.setText("test ishlanmagan");
+                            ComponentContainer.MY_BOT.sendMsg(sendMessage);
+                        }else {
+                            SendDocument sendDocument = new SendDocument();
+                            sendDocument.setChatId(chatId);
+                            sendDocument.setDocument(new InputFile(WorkWithFiles.generateCustomerHistoryPdfFile(chatId, Database.historyList)));
+                            ComponentContainer.MY_BOT.sendMsg(sendDocument);
+                        }
                     }else if (text.equals(KeyboardButtonConstants.CONTACT_WITH_ADMIN)) {
 
                         ComponentContainer.customerMap.put(chatId, true);
                         sendMessage.setText("Xabaringizni kiriting: ");
                         ComponentContainer.MY_BOT.sendMsg(sendMessage);
-                    }else if (Objects.requireNonNull(Database.subjectsList.stream().
+                    }
+                    else if (ComponentContainer.customerMap.containsKey(chatId)) {
+
+                        ComponentContainer.customerMap.remove(chatId);
+
+                        sendMessage.setText("Xabaringiz adminga jo'natildi.");
+                        Message acceptMessage = ComponentContainer.MY_BOT.sendMsg(sendMessage);
+
+                        String str = "ChatId : " + customer.getChatId() + "\nFull name: " + customer.getFirstName() +
+                                "\nPhone number: " + customer.getPhoneNumber() +
+                                "\nText: " + text;
+                        ComponentContainer.ADMIN_CHAT_IDS.stream().map(adminChatId -> new SendMessage(adminChatId, str)).forEach(sendMessage1 -> {
+                            sendMessage1.setReplyMarkup(InlineKeyboardUtil.getConnectMarkup(chatId, acceptMessage.getMessageId()));
+                            Message message1 = ComponentContainer.MY_BOT.sendMsg(sendMessage1);
+                            ComponentContainer.messagesMap.merge(acceptMessage, new ArrayList<>(List.of(message1)), (messages, messages2) -> {
+                                messages.addAll(messages2); return messages;
+                            });
+                        });
+                    }
+                    else if (Objects.requireNonNull(Database.subjectsList.stream().
                             filter(subject -> subject.getTitle().equals(text)).
                             findFirst().
                             orElse(null)).getTitle().equals(text)) {
@@ -229,22 +255,6 @@ public class UserController {
 
                     //Manguberdi Part version 2.0 Elbek changed some parts don't worry everything is ok
 
-                    else {
-                        if (ComponentContainer.customerMap.containsKey(chatId)) {
-
-                            ComponentContainer.customerMap.remove(chatId);
-
-                            sendMessage.setText("Xabaringiz adminga jo'natildi.");
-                            ComponentContainer.MY_BOT.sendMsg(sendMessage);
-
-                            String str = "ChatId : " + customer.getChatId() + "\nFull name: " + customer.getFirstName() +
-                                    "\nPhone number: " + customer.getPhoneNumber() +
-                                    "\nText: " + text;
-                            SendMessage sendMessage1 = new SendMessage(ComponentContainer.ADMIN_CHAT_IDS.get(0), str);
-                            sendMessage1.setReplyMarkup(InlineKeyboardUtil.getConnectMarkup(chatId));
-                            ComponentContainer.MY_BOT.sendMsg(sendMessage1);
-                        }
-                    }
                 }
             }
         }
@@ -287,14 +297,15 @@ public class UserController {
             ComponentContainer.MY_BOT.sendMsg(deleteMessage);
             if (currentQuestion != 0) {
                 StringBuilder sb = new StringBuilder();
-                sb.append("Wrong answer ❌");
+//                sb.append("Wrong answer ❌");
+                sb.append(collect.get(currentQuestion - 1).getTitle()).append("\n");
                 sb.append("Correct answer -> ").append(collect.get(currentQuestion - 1).getCorrectAns()).append("\n");
                 if (collect.get(currentQuestion - 1).getCorrectAns().
                         equals(collect.get(currentQuestion - 1).getAnswer().get(Integer.parseInt(data)))) {
                     countTrueAnswer++;
-                    sb.append("Barakalla ").append(CustomerService.getCustomerByChatId(chatId).getFirstName()).append(" To'gri Javobni topdingiz \uD83E\uDD73").append("\n");
+                    sb.append("Well done ✅").append(CustomerService.getCustomerByChatId(chatId).getFirstName()).append(" To'gri Javobni topdingiz \uD83E\uDD73").append("\n");
                 } else {
-                    sb.append("Afsuski javobingiz xato").append(CustomerService.getCustomerByChatId(chatId).
+                    sb.append("Wrong answer ❌").append(CustomerService.getCustomerByChatId(chatId).
                             getFirstName()).append(" \uD83D\uDE14").append("\n");
                 }
                 sendMessage.setText(String.valueOf(sb));
@@ -304,7 +315,7 @@ public class UserController {
                 doTest = false;
                 sendMessage.setText("Test tugadi" + "\nNatijangiz->" + countTrueAnswer + "/" + countQuestion);
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
-                History history = new History(idHistory, chatId, collect.get(0).getSubject(), countQuestion, countTrueAnswer, LocalDateTime.now().toString());
+                History history = new History(idHistory, chatId, collect.get(0).getSubject(), countQuestion, countTrueAnswer, LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss")));
                 Database.historyList.add(history);
                 WorkWithFiles.writeHistoryList();
                 currentQuestion = 0;

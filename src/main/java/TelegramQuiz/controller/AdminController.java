@@ -19,12 +19,13 @@ import lombok.AllArgsConstructor;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 
-
+import java.util.List;
 
 
 public class AdminController {
@@ -224,6 +225,8 @@ public class AdminController {
             if (ComponentContainer.adminAnswerMap.containsKey(chatId)){
                 MessageData messageData = ComponentContainer.adminAnswerMap.get(chatId);
 
+                Integer customerMessageId = messageData.getMessageId();
+
                 String customerChatId = messageData.getCustomerChatId();
                 Integer messageId = messageData.getMessage().getMessageId();
                 String messageText = messageData.getMessage().getText();
@@ -234,11 +237,35 @@ public class AdminController {
 
                 EditMessageText editMessageText = new EditMessageText();
                 editMessageText.setChatId(chatId);
+
                 editMessageText.setText(messageText+"\n\n xabariga javob: \n\n "+text);
                 editMessageText.setMessageId(messageId);
                 ComponentContainer.MY_BOT.sendMsg(editMessageText);
-
                 ComponentContainer.adminAnswerMap.remove(chatId);
+
+                List<Message> mustMessageList = null;
+                Message mustKey = null;
+
+                for (Message keyMessage : ComponentContainer.messagesMap.keySet()) {
+                    if(keyMessage.getMessageId().equals(customerMessageId)){
+                        mustKey = keyMessage;
+                        mustMessageList = ComponentContainer.messagesMap.get(keyMessage);
+                        break;
+                    }
+                }
+
+                for (Message message1 : mustMessageList) {
+                    String adminChatId = message1.getChatId().toString();
+                    if (!adminChatId.equals(message.getChatId().toString())) {
+                        EditMessageText editMessageText1 = new EditMessageText();
+                        editMessageText1.setChatId(adminChatId);
+                        editMessageText1.setText("Admin " + message.getFrom().getFirstName() + " answered for this question");
+                        editMessageText1.setMessageId(message1.getMessageId());
+                        ComponentContainer.MY_BOT.sendMsg(editMessageText1);
+                    }
+                }
+
+                ComponentContainer.messagesMap.remove(mustKey);
             }
         }
     }
@@ -254,15 +281,14 @@ public class AdminController {
 
         if(data.startsWith(InlineButtonConstants.REPLY_CALL_BACK)){
             String customerChatId = data.split("/")[1];
+            Integer messageId = Integer.parseInt(data.split("/")[2]);
 
-            ComponentContainer.adminAnswerMap.put(chatId, new MessageData(message, customerChatId));
+            ComponentContainer.adminAnswerMap.put(chatId, new MessageData(message, customerChatId, messageId));
 
             sendMessage.setText("Javobingizni kiriting: ");
             ComponentContainer.MY_BOT.sendMsg(sendMessage);
+
         }
-        String chatId = String.valueOf(message.getChatId());
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(chatId);
 
         Subject subject = SubjectService.handeCallback(data);
         DeleteMessage deleteMessage11 = new DeleteMessage(chatId.toString(), message.getMessageId());
