@@ -10,8 +10,8 @@ import java.util.Map;
 
 public class ComponentContainer {
     public static QuizBot MY_BOT = null;
-    public static String BOT_USERNAME = "SolveTestBot";
-    public static String BOT_TOKEN = "5607797780:AAHROLWrt7ruCry5731APrzGe8yNJ4Joze8";
+    public static String BOT_USERNAME = "t.me/TestBotUzb_b22Bot.";
+    public static String BOT_TOKEN = "5636524201:AAGc7Sy7boPiUp3v3Xn6BF1-ehg2II5Ir0o";
     public static List<String> ADMIN_CHAT_IDS = new ArrayList<>(List.of("1053744830"));
 
     public static boolean startElection = false;

@@ -10,4 +10,5 @@ import lombok.*;
 public class Subject {
     private int id;
     private String title;
+    private String callBack;
 }

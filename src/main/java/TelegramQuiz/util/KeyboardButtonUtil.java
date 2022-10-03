@@ -1,13 +1,19 @@
 package TelegramQuiz.util;
 
+import TelegramQuiz.db.Database;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class KeyboardButtonUtil {
+
+
 
     public static ReplyKeyboard getAdminMenu() {
         List<KeyboardRow> rowList = getRowList(
@@ -59,10 +65,123 @@ public class KeyboardButtonUtil {
     }
 
     public static ReplyKeyboard getContactMenu() {
-        KeyboardButton button = getButton("Raqamingizni jo'nating.");
+        KeyboardButton button = getButton("Raqam ulashish");
         button.setRequestContact(true);
 
         return getMarkup(getRowList(getRow(button)));
     }
 
+    public static InlineKeyboardMarkup getSubjectMenu() {
+        InlineKeyboardButton button1=new InlineKeyboardButton();
+        button1.setText("CREATE SUBJECT");
+        button1.setCallbackData("subject");
+
+        InlineKeyboardButton button2=new InlineKeyboardButton();
+        button2.setText("READ SUBJECTS");
+        button2.setCallbackData("read");
+
+        InlineKeyboardButton button3=new InlineKeyboardButton();
+        button3.setText("UPDATE SUBJECT");
+        button3.setCallbackData("Update");
+
+        InlineKeyboardButton button4=new InlineKeyboardButton();
+        button4.setText("DELETE SUBJECT");
+        button4.setCallbackData("delete");
+
+        List<InlineKeyboardButton> row1=new ArrayList<>();
+        row1.add(button1);
+        row1.add(button2);
+
+        List<InlineKeyboardButton> row2=new ArrayList<>();
+        row2.add(button3);
+        row2.add(button4);
+
+        List<List<InlineKeyboardButton>> rows=new ArrayList<>();
+        rows.add(row1);
+        rows.add(row2);
+
+        InlineKeyboardMarkup markup=new InlineKeyboardMarkup();
+
+        markup.setKeyboard(rows);
+
+        return markup;
+
+
+
+    }
+
+    public static InlineKeyboardMarkup getBackInlineButton() {
+        InlineKeyboardButton button=new InlineKeyboardButton();
+        button.setText("BACK");
+        button.setCallbackData("BACK");
+        List<InlineKeyboardButton> row=new ArrayList<>();
+        row.add(button);
+
+        List<List<InlineKeyboardButton>> rows=new ArrayList<>();
+
+        rows.add(row);
+
+        InlineKeyboardMarkup markupBack=new InlineKeyboardMarkup();
+        markupBack.setKeyboard(rows);
+
+        return markupBack;
+    }
+
+    public static ReplyKeyboard getInlineButtonBySubject() {
+
+
+        List<List<InlineKeyboardButton>> rows=new ArrayList<>();
+
+        for (int i = 0; i <= Database.subjectsList.size(); i++) {
+            InlineKeyboardButton button=new InlineKeyboardButton();
+
+            if(i==Database.subjectsList.size()){
+                button.setText("BACK");
+                button.setCallbackData("BACK");
+            }else {
+
+                button.setText(Database.subjectsList.get(i).getTitle());
+                button.setCallbackData(Database.subjectsList.get(i).getTitle());
+            }
+                List<InlineKeyboardButton> row = new ArrayList<>();
+
+            row.add(button);
+            rows.add(row);
+
+        }
+
+        InlineKeyboardButton button1=new InlineKeyboardButton();
+        button1.setText("BACK");
+        button1.setCallbackData("BACK");
+
+        InlineKeyboardMarkup markupBack=new InlineKeyboardMarkup();
+        markupBack.setKeyboard(rows);
+
+
+        return markupBack;
+    }
+
+    public static InlineKeyboardMarkup deleteSubjectButton() {
+        InlineKeyboardButton button=new InlineKeyboardButton();
+        button.setText("YES");
+        button.setCallbackData("YES");
+
+        InlineKeyboardButton button1=new InlineKeyboardButton();
+        button1.setText("NO");
+        button1.setCallbackData("NO");
+
+        List<InlineKeyboardButton> row1=new ArrayList<>();
+        row1.add(button);
+        row1.add(button1);
+
+        List<List<InlineKeyboardButton>> rows=new ArrayList<>();
+
+        rows.add(row1);
+
+        InlineKeyboardMarkup markup=new InlineKeyboardMarkup();
+        markup.setKeyboard(rows);
+
+        return markup;
+
+    }
 }

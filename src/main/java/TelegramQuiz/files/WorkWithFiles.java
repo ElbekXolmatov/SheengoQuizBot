@@ -82,6 +82,7 @@ public interface WorkWithFiles {
     }
 
     static void writeSubjectsList(){
+
         try (PrintWriter writer = new PrintWriter(SUBJECTS_FILE)) {
             writer.write(GSON.toJson(Database.subjectsList));
         } catch (FileNotFoundException e) {
