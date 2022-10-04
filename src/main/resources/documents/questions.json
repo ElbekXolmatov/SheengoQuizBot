@@ -31,8 +31,7 @@
       "3"
     ],
     "correctAns": "2"
-  }
-  ,
+  },
   {
     "id": 1,
     "subject": "English",
@@ -107,8 +106,7 @@
       "4"
     ],
     "correctAns": "2"
-  }
-,
+  },
   {
     "id": 1,
     "subject": "Math",
@@ -133,6 +131,4 @@
     ],
     "correctAns": "2"
   }
-
-
 ]
