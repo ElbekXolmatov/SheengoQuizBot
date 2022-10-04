@@ -23,7 +23,7 @@ public class CustomerService {
         if(getCustomerByPhoneNumber(contact.getPhoneNumber()) != null) return null;
 
 //        String code = String.valueOf(new Random().nextInt(1000, 10000));
-        String code = String.valueOf((int)(Math.random()*9000+1000));
+        String code = String.valueOf((int)(Math.random()*900000+100000));
 
         Customer customer = new Customer(chatId, contact.getFirstName(),
                 contact.getLastName(), contact.getPhoneNumber(), code);

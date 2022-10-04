@@ -1,6 +1,7 @@
 package TelegramQuiz.util;
 
 import TelegramQuiz.controller.UserController;
+import TelegramQuiz.db.Database;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -10,6 +11,9 @@ import java.util.Collections;
 import java.util.List;
 
 public class InlineKeyboardUtil {
+    private static List<InlineKeyboardButton> getRow(InlineKeyboardButton... buttons) {
+        return new ArrayList<>(List.of(buttons));
+    }
 
     //<Teginilmasin
     public static ReplyKeyboard getCountOfQuestions() {
@@ -26,7 +30,11 @@ public class InlineKeyboardUtil {
 
         return new InlineKeyboardMarkup(List.of(List.of(five, ten, twenty, thirty), List.of(all)));
     }
-
+    public static InlineKeyboardMarkup getCancel(){
+        InlineKeyboardButton button = new InlineKeyboardButton(InlineButtonConstants.CANCEL);
+        button.setCallbackData(InlineButtonConstants.CANCEL_CALL_BACK);
+        return new InlineKeyboardMarkup(List.of(List.of(button)));
+    }
     public static ReplyKeyboard getAnswers(int currentQuestion, int size) {
         List<InlineKeyboardButton> buttons = new ArrayList<>();
         List<List<InlineKeyboardButton>> listButtons = new ArrayList<>();
@@ -42,11 +50,33 @@ public class InlineKeyboardUtil {
     }
     //Teginilmasin>
 
+    public static InlineKeyboardMarkup getChoiceSubjectMenu(){
 
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+
+        InlineKeyboardButton button;
+
+        for (int i = 0; i < Database.subjectsList.size(); i++) {
+            button = new InlineKeyboardButton(Database.subjectsList.get(i).getTitle());
+            button.setCallbackData(String.valueOf(Database.subjectsList.get(i).getId()));
+            keyboard.add(getRow(button));
+        }
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        markup.setKeyboard(keyboard);
+        return markup;
+    }
     public static InlineKeyboardMarkup getConnectMarkup(String chatId, Integer messageId) {
         InlineKeyboardButton button = new InlineKeyboardButton(InlineButtonConstants.REPLY_DEMO);
         button.setCallbackData(InlineButtonConstants.REPLY_CALL_BACK + "/" + chatId+"/"+messageId);
 
         return new InlineKeyboardMarkup(List.of(List.of(button)));
+    }
+    public static ReplyKeyboard getSaveTestButtons() {
+        InlineKeyboardButton button = new InlineKeyboardButton(InlineButtonConstants.ADD);
+        button.setCallbackData(InlineButtonConstants.ADD_CALL_BACK);
+        InlineKeyboardButton button1 = new InlineKeyboardButton(InlineButtonConstants.CANCEL);
+        button1.setCallbackData(InlineButtonConstants.CANCEL_CALL_BACK);
+        return new InlineKeyboardMarkup(List.of(List.of(button, button1)));
     }
 }

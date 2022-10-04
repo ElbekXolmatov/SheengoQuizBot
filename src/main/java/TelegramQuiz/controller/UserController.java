@@ -46,6 +46,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static TelegramQuiz.controller.UserController.doTest;
+
 
 public class UserController {
 
@@ -55,7 +57,7 @@ public class UserController {
     static int currentQuestion;
     static int countTrueAnswer;
     static int idHistory;
-    static LocalDateTime now ;
+    static LocalDateTime now;
 
     static LocalTime beginLocalTime;
 
@@ -140,7 +142,7 @@ public class UserController {
                         sendMessage.setText("Kod noto'g'ri");
                         ComponentContainer.MY_BOT.sendMsg(sendMessage);
                     }
-                } else {
+                }else {
                     //Manguberdi Part Started
                     if (text.equals(KeyboardButtonConstants.BACK_TO_MAIN_MENU)) {
                         if (doTest) {
@@ -221,7 +223,7 @@ public class UserController {
                             sendDocument.setDocument(new InputFile(WorkWithFiles.generateCustomerHistoryPdfFile(chatId, Database.historyList)));
                             ComponentContainer.MY_BOT.sendMsg(sendDocument);
                         }
-                    }else if (text.equals(KeyboardButtonConstants.CONTACT_WITH_ADMIN)) {
+                    } else if (text.equals(KeyboardButtonConstants.CONTACT_WITH_ADMIN)) {
 
                         ComponentContainer.customerMap.put(chatId, true);
                         sendMessage.setText("Xabaringizni kiriting: ");
@@ -244,8 +246,8 @@ public class UserController {
                                 messages.addAll(messages2); return messages;
                             });
                         });
-                    }
-                    else if (Objects.requireNonNull(Database.subjectsList.stream().
+
+                    }else if (Objects.requireNonNull(Database.subjectsList.stream().
                             filter(subject -> subject.getTitle().equals(text)).
                             findFirst().
                             orElse(null)).getTitle().equals(text)) {
@@ -270,22 +272,7 @@ public class UserController {
 
                     //Manguberdi Part version 2.0 Elbek changed some parts don't worry everything is ok
 
-                    else {
-                        if (ComponentContainer.customerMap.containsKey(chatId)) {
 
-                            ComponentContainer.customerMap.remove(chatId);
-
-                            sendMessage.setText("Xabaringiz adminga jo'natildi.");
-                            ComponentContainer.MY_BOT.sendMsg(sendMessage);
-
-                            String str = "ChatId : " + customer.getChatId() + "\nFull name: " + customer.getFirstName() +
-                                    "\nPhone number: " + customer.getPhoneNumber() +
-                                    "\nText: " + text;
-                            SendMessage sendMessage1 = new SendMessage(ComponentContainer.ADMIN_CHAT_IDS.get(0), str);
-                            sendMessage1.setReplyMarkup(InlineKeyboardUtil.getConnectMarkup(chatId));
-                            ComponentContainer.MY_BOT.sendMsg(sendMessage1);
-                        }
-                    }
                 }
             }
         }
@@ -310,7 +297,7 @@ public class UserController {
                 beginLocalTime = LocalTime.now();
                 doTest = true;
                 idHistory++;
-                now=LocalDateTime.now();
+                now = LocalDateTime.now();
             } else {
                 sendMessage.setText("Buncha savol yoq");
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
@@ -324,7 +311,7 @@ public class UserController {
             }
             idHistory++;
             doTest = true;
-            now=LocalDateTime.now();
+            now = LocalDateTime.now();
         }
         if (doTest) {
             DeleteMessage deleteMessage = new DeleteMessage(chatId, message.getMessageId());
@@ -339,23 +326,19 @@ public class UserController {
                         equals(collect.get(currentQuestion - 1).getAnswer().get(Integer.parseInt(data)))) {
                     countTrueAnswer++;
                     sb.append("Correct answer ✔️\n");
-                    sb.append("Barakalla ").append(CustomerService.getCustomerByChatId(chatId).getFirstName()).append(" To'gri Javobni topdingiz \uD83E\uDD73").append("\n");
                     sb.append("Well done ✅").append(CustomerService.getCustomerByChatId(chatId).getFirstName()).append(" To'gri Javobni topdingiz \uD83E\uDD73").append("\n");
                 } else {
-                    sb.append("Wrong answer ❌\n");
-                    sb.append("Correct answer -> ").append(collect.get(currentQuestion - 1).getCorrectAns()).append("\n");
-                    sb.append("Afsuski javobingiz xato ").append(CustomerService.getCustomerByChatId(chatId).
                     sb.append("Wrong answer ❌").append(CustomerService.getCustomerByChatId(chatId).
                             getFirstName()).append(" \uD83D\uDE14").append("\n");
                 }
                 sendMessage.setText(String.valueOf(sb));
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
             }
-            if (currentQuestion == countQuestion|| Duration.between(now,LocalDateTime.now()).getSeconds()>=20 ) {
+            if (currentQuestion == countQuestion || Duration.between(now, LocalDateTime.now()).getSeconds() >= 20) {
                 DeleteMessage deleteMessage1 = new DeleteMessage(chatId, message.getMessageId());
                 ComponentContainer.MY_BOT.sendMsg(deleteMessage1);
                 doTest = false;
-                sendMessage.setText("Test tugadi" + "\nNatijangiz->" + countTrueAnswer + "/" + countQuestion +"\nEnd time: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+                sendMessage.setText("Test tugadi" + "\nNatijangiz->" + countTrueAnswer + "/" + countQuestion + "\nEnd time: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
                 ComponentContainer.MY_BOT.sendMsg(sendMessage);
                 History history = new History(idHistory, chatId, collect.get(0).getSubject(), countQuestion, countTrueAnswer, LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm:ss")));
                 Database.historyList.add(history);
@@ -363,9 +346,7 @@ public class UserController {
                 currentQuestion = 0;
                 countTrueAnswer = 0;
 
-            }
-
-            else {
+            } else {
                 if (currentQuestion == 0) {
 
                     sendMessage.setText("Test boshlandi " + now.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
@@ -388,8 +369,8 @@ public class UserController {
 
     }
     //Teginilmasin>>
-
-    static class MyThread extends Thread {
+}
+class MyThread extends Thread {
 
         Message editMessage;
 
@@ -397,5 +378,22 @@ public class UserController {
             this.editMessage = editMessage;
         }
 
+        @Override
+        public void run() {
+            while (doTest) {
+                LocalDateTime now = LocalDateTime.now();
+                EditMessageText editMessageText = new EditMessageText();
+                editMessageText.setText("Time: " + now.format(DateTimeFormatter.ofPattern("HH:mm:ss")));
+                editMessageText.setChatId(String.valueOf(editMessage.getChatId()));
+                editMessageText.setMessageId(editMessage.getMessageId());
+                ComponentContainer.MY_BOT.sendMsg(editMessageText);
+                try {
+                    Thread.sleep(980);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-}
+            }
+        }
+    }
+

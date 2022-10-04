@@ -28,6 +28,7 @@ public class GenerateQRCode
         String path = "src/main/resources/qrcodes/"+chatId+".png";
 //Encoding charset to be used
         String charset = "UTF-8";
+
         Map<EncodeHintType, ErrorCorrectionLevel> hashMap = new HashMap<EncodeHintType, ErrorCorrectionLevel>();
 //generates QR code with Low level(L) error correction capability
         hashMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);

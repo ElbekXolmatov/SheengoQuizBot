@@ -50,6 +50,19 @@ public class KeyboardButtonUtil {
 
         return getMarkup(rowList);
     }
+    public static ReplyKeyboard getTestCRUD(){
+        List<KeyboardRow> rowList = getRowList(
+                getRow(
+                        getButton(KeyboardButtonConstants.TEST_CREATE),
+                        getButton(KeyboardButtonConstants.TEST_READ),
+                        getButton(KeyboardButtonConstants.TEST_UPDATE),
+                        getButton(KeyboardButtonConstants.TEST_DELETE)
+                ),
+                getRow(getButton(KeyboardButtonConstants.BACK_TO_MENU))
+        );
+
+        return getMarkup(rowList);
+    }
 
     private static KeyboardButton getButton(String demo) {
 

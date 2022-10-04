@@ -22,5 +22,9 @@ public class KeyboardButtonConstants {
     //<Tegiinilmasin
     public static final String BACK_TO_MAIN_MENU = "Back to main menu";
     public static final String BACK_TO_SUBJECT_MENU = "Back to subjects menu";
+    public static final String TEST_CREATE = "C";
+    public static final String TEST_READ = "R";
+    public static final String TEST_UPDATE = "U";
+    public static final String TEST_DELETE = "D";
     //Teginilmasin>
 }
