@@ -5,18 +5,7 @@
   <groupId>org.example</groupId>
   <artifactId>TlegramQuizBot</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <configuration>
-          <source>3.1</source>
-          <target>3.1</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+
   <packaging>jar</packaging>
 
   <name>TlegramQuizBot</name>
@@ -25,6 +14,40 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>16</source>
+          <target>16</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.1.1</version>
+        <configuration>
+          <assembleDirectory>target</assembleDirectory>
+          <programs>
+            <program>
+              <mainClass>TelegramQuiz.Bot.Main</mainClass>
+              <name>TlegramQuizBot</name>
+            </program>
+          </programs>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>assemble</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
   <dependencies>
     <dependency>
@@ -73,23 +96,7 @@
       <artifactId>kernel</artifactId>
       <version>7.2.3</version>
     </dependency>
-  <dependency>
-    <groupId> org.apache.cassandra</groupId>
-    <artifactId>cassandra-all</artifactId>
-    <version>3.0.26</version>
 
-    <exclusions>
-      <exclusion>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-      </exclusion>
-      <exclusion>
-        <groupId>log4j</groupId>
-        <artifactId>log4j</artifactId>
-      </exclusion>
-    </exclusions>
-
-  </dependency>
   </dependencies>
 
 </project>
